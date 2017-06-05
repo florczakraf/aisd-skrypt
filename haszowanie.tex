@@ -1,0 +1,34 @@
+\section{Haszowanie}
+
+W tym rozdziale zastanowimy się jak sprawnie zrealizować słownik --- strukturę danych udostępniającą operacje: 
+\begin{itemize}
+	\item dodawania kluczy,
+	\item usuwania kluczy,
+	\item sprawdzania czy klucz jest w słowniku (i zwracania przypisanej do niego wartości).
+\end{itemize}
+Przyjmijmy, że wszystkie klucze należą do pewnego uniwersum $U$.
+
+Do wykonywania powyższych operacji możemy użyć drzew zbalansowanych (np. AVL lub czerwono-czarnych), jednak w tym przypadku będziemy działać w czasie $O(log(n))$. Poniżej przedstawimy w jaki sposób można zejść do zamortyzowanego czasu stałego.
+
+\subsection{Tablice z adresowaniem bezpośrednim}
+Zastanówmy się przez chwilę, jak można zrealizować opisane wcześniej operacje posiadając nieograniczoną pamięć --- albo inaczej: $U$ jest na tyle małe, że mieści się w pamięci, np. $U = \{0, 1, \dots, m - 1\}$. Dodatkowo załóżmy, że żadne dwa elementy nie mają identycznych kluczy.
+
+Przy takich założeniach, pewien podzbiór kluczy z $U$ możemy reprezentować przy użyciu zwykłej tablicy $T[0 \dots m - 1]$. Jeśli klucz $k$ znajduje się w $T$, to w $T[k]$ znajduje się wskaźnik na element przypisany do $k$; w przeciwnym wypadku $T[k] = NIL$.
+
+\subsection{Tablice haszujące}
+Opisane w poprzednim podrozdziale rozwiązanie wymaga nieakceptowalnego założenia --- nieograniczonej pamięci. Teraz zajmiemy się rozwiązaniem docelowym, czyli takim, które będzie wykorzystywało $O(m)$ komórek pamięci, gdzie $m$ jest związane z licznością podzbioru $U$, który chcemy przechowywać w słowniku.
+
+W tym celu weźmy funkcję $h : U \rightarrow \{0, 1, \dots, m - 1\}$. Każdą funkcję tego typu nazywamy funkcją haszującą, jednak nie każda z nich jest tak samo dobra, dlatego zdefiniujmy \textit{dobrą} funkcję haszującą.
+\begin{definition}[Dobra funkcja haszująca]
+Funkcję haszującą $h$ nazwiemy \textit{dobrą}, gdy:
+\begin{equation*}
+\forall_{j = 0, \dots, m - 1} \sum_{k : h(k) = j} Pr(k) = \dfrac{1}{m} \wedge h \textsl{ jest łatwo obliczalna}
+\end{equation*}
+gdzie $Pr(k)$ jest prawdopodobieństwem tego, że $k \in U$ jest argumentem którejś z operacji wykonywanych na słowniku.
+\end{definition}
+W praktyce powyższy warunek jest niesprawdzalny, ponieważ nie znamy $Pr(k)$.
+Przykłady funkcji haszujących:
+\begin{itemize}
+	\item $h(k) = k \mod m$, gdzie $m$ nie powinno być postaci $2^p$ (ponieważ $h(k)$ jest $p$ ostatnimi bitami $k$. Dużo lepsze wyniki dają $m$ będące liczbami pierwszymi oddalonymi od potęg dwójki.
+	\item $h(k) = \lfloor m(kA - \lfloor kA \rfloor) \rfloor$, gdzie $A \in (0, 1)$, $m$ może być potęgą dwójki.
+\end{itemize}
